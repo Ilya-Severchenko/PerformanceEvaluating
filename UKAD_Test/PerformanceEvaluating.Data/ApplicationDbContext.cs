@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using PerformanceEvaluating.Data.Migrations;
 using PerformanceEvaluating.Data.Models;

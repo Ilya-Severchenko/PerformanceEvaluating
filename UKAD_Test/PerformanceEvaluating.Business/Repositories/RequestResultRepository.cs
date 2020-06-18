@@ -11,6 +11,8 @@ namespace PerformanceEvaluating.Business.Repositories
 {
     public class RequestResultRepository : IRequestResultRepository
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         private readonly ApplicationDbContext _context;
 
         public RequestResultRepository(ApplicationDbContext context)
@@ -35,10 +37,10 @@ namespace PerformanceEvaluating.Business.Repositories
             return await _context.RequestResults.ToListAsync();
         }
 
-        public async Task<bool> UpdateAsync(RequestResult entity)
-        {
-            throw new NotImplementedException();
-        }
+        //public async Task<bool> UpdateAsync(RequestResult entity)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<RequestResult> AddAsync(RequestResult entity)
         {
@@ -50,6 +52,7 @@ namespace PerformanceEvaluating.Business.Repositories
             }
             catch (Exception ex)
             {
+                Logger.Error(ex.Message);
                 throw;
             }
         }
@@ -68,6 +71,7 @@ namespace PerformanceEvaluating.Business.Repositories
                 }
                 catch (Exception ex)
                 {
+                    Logger.Error(ex.Message);
                     throw;
                 }
             }

@@ -1,5 +1,4 @@
-﻿
-namespace PerformanceEvaluating.Data.Models
+﻿namespace PerformanceEvaluating.Data.Models
 {
     public class RequestResult
     {        
