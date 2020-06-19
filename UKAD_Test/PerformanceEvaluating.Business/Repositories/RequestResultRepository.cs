@@ -22,33 +22,26 @@ namespace PerformanceEvaluating.Business.Repositories
 
         public async Task<RequestResult> GetByIdAsync(int id)
         {
-            var result = await _context.RequestResults.FirstOrDefaultAsync(_ => _.Id == id);
-            return result;
+            return await _context.RequestResults.FirstOrDefaultAsync(_ => _.Id == id);             
         }
 
         public async Task<RequestResult> GetByUrlAsync(string url)
         {
-            var result = await _context.RequestResults.FirstOrDefaultAsync(_ => _.Url == url);
-            return result;
+            return await _context.RequestResults.FirstOrDefaultAsync(_ => _.Url == url);            
         }
 
         public async Task<IEnumerable<RequestResult>> GetAllAsync()
         {
             return await _context.RequestResults.ToListAsync();
         }
-
-        //public async Task<bool> UpdateAsync(RequestResult entity)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
+        
         public async Task<RequestResult> AddAsync(RequestResult entity)
         {
             try
             {
-                var result = _context.RequestResults.Add(entity);
+                var adding = _context.RequestResults.Add(entity);
                 await _context.SaveChangesAsync();
-                return result;
+                return adding;
             }
             catch (Exception ex)
             {
@@ -59,13 +52,13 @@ namespace PerformanceEvaluating.Business.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var result = await GetByIdAsync(id);
+            var deletion = await GetByIdAsync(id);
 
-            if (result != null)
+            if (deletion != null)
             {
                 try
                 {
-                    _context.RequestResults.Remove(result);
+                    _context.RequestResults.Remove(deletion);
                     await _context.SaveChangesAsync();
                     return true;
                 }
