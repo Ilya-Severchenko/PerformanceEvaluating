@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace PerformanceEvaluating.ViewModel
+﻿namespace PerformanceEvaluating.Data.Models
 {
     public class RequestResultViewModel
     {

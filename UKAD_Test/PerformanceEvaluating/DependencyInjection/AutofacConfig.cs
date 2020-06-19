@@ -2,6 +2,7 @@
 using Autofac.Integration.Mvc;
 using PerformanceEvaluating.Business.Interfaces;
 using PerformanceEvaluating.Business.Repositories;
+using PerformanceEvaluating.Business.Services;
 using PerformanceEvaluating.Data;
 using System.Web.Mvc;
 
@@ -16,6 +17,7 @@ namespace PerformanceEvaluating.DependencyInjection
 
             builder.RegisterType<RequestResultRepository>().As<IRequestResultRepository>()
                 .WithParameter("context", new ApplicationDbContext());
+            builder.RegisterType<ServiceForHomeController>().As<IServiceForHomeController>();
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
