@@ -1,30 +1,93 @@
-﻿using System;
+﻿using PerformanceEvaluating.Business.Interfaces;
+using PerformanceEvaluating.Data.Models;
+using PerformanceEvaluating.ViewModel;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Web;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace PerformanceEvaluating.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        private readonly IRequestResultRepository _requestResultRepository;
+
+        public HomeController(IRequestResultRepository requestResultRepository)
         {
-            return View();
+            _requestResultRepository = requestResultRepository;
         }
 
-        public ActionResult About()
+        public async Task<ActionResult> Index()
         {
-            ViewBag.Message = "Your application description page.";
+            var results = await _requestResultRepository.GetAllAsync();
 
-            return View();
+            var groups = results.Select(_ => _.Url).Distinct();
+            var sortedResults = new List<RequestResultViewModel>();
+            foreach (var res in groups)
+            {
+                var vm = new RequestResultViewModel()
+                {
+                    Url = res,
+                    Min = await _requestResultRepository.GetMinValueByUrlAsync(res),
+                    Max = await _requestResultRepository.GetMaxValueByUrlAsync(res)
+                };
+                sortedResults.Add(vm);
+            }
+
+            return View(sortedResults.OrderBy(_ => _.Min));
         }
 
-        public ActionResult Contact()
+        [HttpPost]
+        public async Task<ActionResult> Evaluate(string url)
         {
-            ViewBag.Message = "Your contact page.";
+            if (!url.StartsWith("http"))
+            {
+                url = $"http://{url}";
+            }
+            
+            var httpClient = new HttpClient();
+            var stopwatch = new Stopwatch();
 
-            return View();
+            stopwatch.Start();
+            var response = await httpClient.GetAsync(url);
+            stopwatch.Stop();
+
+            await _requestResultRepository.AddAsync(new RequestResult
+            {
+                Url = url,
+                Attempt = stopwatch.ElapsedMilliseconds,
+                StatusCode = (int)response.StatusCode,
+            });
+
+            return RedirectToAction("Index");
         }
+        public async Task<ActionResult> DeleteAsync(string url)
+        {
+            await _requestResultRepository.DeleteAllByUrlAsync(url);
+
+            return RedirectToAction("Index");
+        }
+
+        public async Task<ActionResult> ShowDetails(string url)
+        {
+            var results = await _requestResultRepository.GetAllByUrlAsync(url);
+
+            var viewResults = new List<RequestResult>();
+            foreach (var res in results)
+            {
+                var vm = new RequestResult()
+                {
+                    Url = url,
+                    Attempt = res.Attempt,
+                    StatusCode = res.StatusCode
+                };
+                viewResults.Add(vm);
+            }
+
+            return View(viewResults);
+        }
+
     }
 }
