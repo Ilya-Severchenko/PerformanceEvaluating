@@ -17,7 +17,7 @@ namespace PerformanceEvaluating.DependencyInjection
 
             builder.RegisterType<RequestResultRepository>().As<IRequestResultRepository>()
                 .WithParameter("context", new ApplicationDbContext());
-            builder.RegisterType<ServiceForHomeController>().As<IServiceForHomeController>();
+            builder.RegisterType<PerformanceEvaluatingService>().As<IPerformanceEvaluatingService>();
 
             var container = builder.Build();
             DependencyResolver.SetResolver(new AutofacDependencyResolver(container));

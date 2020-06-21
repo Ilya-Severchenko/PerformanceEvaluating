@@ -7,16 +7,16 @@ namespace PerformanceEvaluating.Controllers
     public class HomeController : Controller
     {
         private readonly IRequestResultRepository _requestResultRepository;
-        private readonly IServiceForHomeController _serviceForHomeController;
-        public HomeController(IRequestResultRepository requestResultRepository, IServiceForHomeController serviceForHomeController)
+        private readonly IPerformanceEvaluatingService _performanceEvaluatingService;
+        public HomeController(IRequestResultRepository requestResultRepository, IPerformanceEvaluatingService performanceEvaluatingService)
         {
             _requestResultRepository = requestResultRepository;
-            _serviceForHomeController = serviceForHomeController;
+            _performanceEvaluatingService = performanceEvaluatingService;
         }
 
         public async Task<ActionResult> Index()
         {
-            var table = await _serviceForHomeController.SortedMainTable();
+            var table = await _performanceEvaluatingService.SortedMainTableAsync();
             
             return View(table);
         }
@@ -24,11 +24,11 @@ namespace PerformanceEvaluating.Controllers
         [HttpPost]
         public async Task<ActionResult> Evaluate(string url)
         {
-            await _serviceForHomeController.Evaluate(url);
+            await _performanceEvaluatingService.EvaluateAsync(url);
             
             return RedirectToAction("Index");
         }
-        public async Task<ActionResult> DeleteAsync(string url)
+        public async Task<ActionResult> Delete(string url)
         {
             await _requestResultRepository.DeleteAllByUrlAsync(url);
 
@@ -37,9 +37,15 @@ namespace PerformanceEvaluating.Controllers
 
         public async Task<ActionResult> ShowDetails(string url)
         {
-            var details = await _serviceForHomeController.ShowDetails(url);
+            var details = await _performanceEvaluatingService.ShowDetailsAsync(url);
             
             return View(details);
+        }
+        public async Task<ActionResult> GraphOutput()
+        {
+            var stream = await _performanceEvaluatingService.GraphOutputAsync();
+
+            return File(stream.GetBuffer(), @"image/png");
         }
 
     }
