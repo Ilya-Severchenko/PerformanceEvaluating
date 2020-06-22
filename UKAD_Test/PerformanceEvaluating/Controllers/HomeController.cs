@@ -8,6 +8,7 @@ namespace PerformanceEvaluating.Controllers
     {
         private readonly IRequestResultRepository _requestResultRepository;
         private readonly IPerformanceEvaluatingService _performanceEvaluatingService;
+
         public HomeController(IRequestResultRepository requestResultRepository, IPerformanceEvaluatingService performanceEvaluatingService)
         {
             _requestResultRepository = requestResultRepository;
@@ -28,6 +29,7 @@ namespace PerformanceEvaluating.Controllers
             
             return RedirectToAction("Index");
         }
+
         public async Task<ActionResult> Delete(string url)
         {
             await _requestResultRepository.DeleteAllByUrlAsync(url);
@@ -41,6 +43,7 @@ namespace PerformanceEvaluating.Controllers
             
             return View(details);
         }
+
         public async Task<ActionResult> GraphOutput()
         {
             var stream = await _performanceEvaluatingService.GraphOutputAsync();

@@ -12,13 +12,13 @@
     }))
     {
         <label for="url">Write URL adress:</label>
-        <input type="text" name="url" id="url" />
+        <input type="text" name="url" id="url" required/>
         <button class="btn btn-outline-secondary">Submit</button>
     }
 </div>
 
 <div>
-    <img src="@Url.Action("GraphOutput")" />
+    <img src="@Url.Action("GraphOutput")" class="img-fluid" />
 </div>
 
 <div class="table-responsive">
