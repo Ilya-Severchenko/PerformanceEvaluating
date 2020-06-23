@@ -18,12 +18,13 @@ namespace PerformanceEvaluating.Data
             Database.SetInitializer(new MigrateDatabaseToLatestVersion<ApplicationDbContext, Configuration>());
         }
 
-        public DbSet<DomainRequestResult> RequestResults { get; set; }
+        public DbSet<DomainRequestResult> DomainRequestResults { get; set; }
+        //public DbSet<ChildRequestResult> ChildRequestResults { get; set; }
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<DomainRequestResult>().ToTable("RequestResults");
+            modelBuilder.Entity<DomainRequestResult>().ToTable("DomainRequestResults");
             modelBuilder.Entity<DomainRequestResult>().HasKey(_ => _.Id);
             modelBuilder.Entity<DomainRequestResult>().Property(_ => _.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 

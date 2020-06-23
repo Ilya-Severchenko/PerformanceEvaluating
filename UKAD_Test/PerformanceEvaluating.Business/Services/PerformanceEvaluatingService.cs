@@ -14,11 +14,11 @@ namespace PerformanceEvaluating.Business.Services
 {
     public class PerformanceEvaluatingService : IPerformanceEvaluatingService
     {
-        private readonly IRequestResultRepository _requestResultRepository;
+        private readonly IDomainRequestResultRepository _domainRequestResultRepository;
 
-        public PerformanceEvaluatingService(IRequestResultRepository requestResultRepository)
+        public PerformanceEvaluatingService(IDomainRequestResultRepository domainRequestResultRepository)
         {
-            _requestResultRepository = requestResultRepository;
+            _domainRequestResultRepository = domainRequestResultRepository;
         }
 
         public async Task EvaluateAsync(string url)
@@ -39,10 +39,10 @@ namespace PerformanceEvaluating.Business.Services
             var domenResponse = await httpClient.GetAsync(url);
             stopwatch.Stop();
 
-            await _requestResultRepository.AddAsync(new RequestResult
+            await _domainRequestResultRepository.AddAsync(new DomainRequestResult
             {
                 Url = url,
-                Attempt = stopwatch.ElapsedMilliseconds,
+                //Attempt = stopwatch.ElapsedMilliseconds,
                 StatusCode = (int)domenResponse.StatusCode,
             });
 
@@ -65,17 +65,17 @@ namespace PerformanceEvaluating.Business.Services
             }
         }               
 
-        public async Task<List<RequestResult>> ShowDetailsAsync(string url)
+        public async Task<List<DomainRequestResult>> ShowDetailsAsync(string url)
         {
-            var results = await _requestResultRepository.GetAllByUrlAsync(url);
+            var results = await _domainRequestResultRepository.GetAllByUrlAsync(url);
 
-            var viewResults = new List<RequestResult>();
+            var viewResults = new List<DomainRequestResult>();
             foreach (var res in results)
             {
-                var viewModel = new RequestResult()
+                var viewModel = new DomainRequestResult()
                 {
                     Url = url,
-                    Attempt = res.Attempt,
+                    //Attempt = res.Attempt,
                     StatusCode = res.StatusCode
                 };
                 viewResults.Add(viewModel);
@@ -85,7 +85,7 @@ namespace PerformanceEvaluating.Business.Services
 
         public async Task<List<RequestResultViewModel>> SortedMainTableAsync()
         {
-            var results = await _requestResultRepository.GetAllAsync();
+            var results = await _domainRequestResultRepository.GetAllAsync();
 
             var groups = results.Select(_ => _.Url).Distinct();
 
@@ -96,8 +96,8 @@ namespace PerformanceEvaluating.Business.Services
                 var viewModel = new RequestResultViewModel()
                 {
                     Url = res,
-                    Min = await _requestResultRepository.GetMinValueByUrlAsync(res),
-                    Max = await _requestResultRepository.GetMaxValueByUrlAsync(res)
+                    //Min = await _domainRequestResultRepository.GetMinValueByUrlAsync(res),
+                    //Max = await _domainRequestResultRepository.GetMaxValueByUrlAsync(res)
                 };
                 sortedResults.Add(viewModel);
             }

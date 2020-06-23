@@ -6,10 +6,10 @@ namespace PerformanceEvaluating.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IRequestResultRepository _requestResultRepository;
+        private readonly IDomainRequestResultRepository _requestResultRepository;
         private readonly IPerformanceEvaluatingService _performanceEvaluatingService;
 
-        public HomeController(IRequestResultRepository requestResultRepository, IPerformanceEvaluatingService performanceEvaluatingService)
+        public HomeController(IDomainRequestResultRepository requestResultRepository, IPerformanceEvaluatingService performanceEvaluatingService)
         {
             _requestResultRepository = requestResultRepository;
             _performanceEvaluatingService = performanceEvaluatingService;
