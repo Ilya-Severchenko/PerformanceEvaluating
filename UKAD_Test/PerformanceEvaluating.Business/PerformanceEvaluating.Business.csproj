@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IChildRequesResult.cs" />
     <Compile Include="Interfaces\IDomainRequestResultRepository.cs" />
     <Compile Include="Interfaces\IPerformanceEvaluatingService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

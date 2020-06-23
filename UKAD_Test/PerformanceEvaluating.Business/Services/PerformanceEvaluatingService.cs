@@ -35,9 +35,9 @@ namespace PerformanceEvaluating.Business.Services
             var httpClient = new HttpClient();
             var stopwatch = new Stopwatch();
 
-            stopwatch.Start();
+            //stopwatch.Start();
             var domenResponse = await httpClient.GetAsync(url);
-            stopwatch.Stop();
+            //stopwatch.Stop();
 
             await _domainRequestResultRepository.AddAsync(new DomainRequestResult
             {
@@ -53,9 +53,9 @@ namespace PerformanceEvaluating.Business.Services
             foreach (XmlNode node in xnList)
             {
                 
-                //stopwatch.Start();
-                //var childResponse = await httpClient.GetAsync(node["loc"].InnerText);
-                //stopwatch.Stop();
+                stopwatch.Start();
+                var childResponse = await httpClient.GetAsync(node["loc"].InnerText);
+                stopwatch.Stop();
                 //await _requestChildResultRepository.AddAsync(new ChildRequestResult
                 //{
                 //    Url = node["loc"].InnerText,

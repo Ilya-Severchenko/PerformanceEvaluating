@@ -19,7 +19,7 @@ namespace PerformanceEvaluating.Data
         }
 
         public DbSet<DomainRequestResult> DomainRequestResults { get; set; }
-        //public DbSet<ChildRequestResult> ChildRequestResults { get; set; }
+        public DbSet<ChildRequestResult> ChildRequestResults { get; set; }
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
