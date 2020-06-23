@@ -72,6 +72,7 @@
     <Compile Include="Interfaces\IDomainRequestResultRepository.cs" />
     <Compile Include="Interfaces\IPerformanceEvaluatingService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\ChildRequestResultRepository.cs" />
     <Compile Include="Repositories\DomainRequestResultRepository.cs" />
     <Compile Include="Services\PerformanceEvaluatingService.cs" />
   </ItemGroup>
