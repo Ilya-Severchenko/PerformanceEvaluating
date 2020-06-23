@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web.UI.DataVisualization.Charting;
 using System.Drawing;
 using System.IO;
+using System.Xml;
 
 namespace PerformanceEvaluating.Business.Services
 {
@@ -26,20 +27,42 @@ namespace PerformanceEvaluating.Business.Services
             {
                 url = $"http://{url}";
             }
+            if (!url.EndsWith("sitemap.xml"))
+            {
+                url += "/sitemap.xml";
+            }
 
             var httpClient = new HttpClient();
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();
-            var response = await httpClient.GetAsync(url);
+            var domenResponse = await httpClient.GetAsync(url);
             stopwatch.Stop();
 
             await _requestResultRepository.AddAsync(new RequestResult
             {
                 Url = url,
                 Attempt = stopwatch.ElapsedMilliseconds,
-                StatusCode = (int)response.StatusCode,
+                StatusCode = (int)domenResponse.StatusCode,
             });
+
+            var childsResponse = await httpClient.GetStringAsync(url);
+            XmlDocument urlDoc = new XmlDocument();
+            urlDoc.LoadXml(childsResponse);
+            XmlNodeList xnList = urlDoc.GetElementsByTagName("url");
+            foreach (XmlNode node in xnList)
+            {
+                
+                //stopwatch.Start();
+                //var childResponse = await httpClient.GetAsync(node["loc"].InnerText);
+                //stopwatch.Stop();
+                //await _requestChildResultRepository.AddAsync(new ChildRequestResult
+                //{
+                //    Url = node["loc"].InnerText,
+                //    Attempt = stopwatch.ElapsedMilliseconds,
+                //    StatusCode = (int)childResponse.StatusCode,
+                //});
+            }
         }               
 
         public async Task<List<RequestResult>> ShowDetailsAsync(string url)
