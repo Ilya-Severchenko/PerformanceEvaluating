@@ -9,7 +9,7 @@ namespace PerformanceEvaluating.Business.Interfaces
     {
         Task EvaluateAsync(string url);
         Task<List<RequestResultViewModel>> SortedMainTableAsync();
-        Task<List<DomainRequestResult>> ShowDetailsAsync(string url);
-        Task<MemoryStream> GraphOutputAsync();
+        Task<List<RequestResultViewModel>> ShowDetailsAsync(int id);
+        Task<MemoryStream> GraphOutputAsync(int parentId);
     }
 }

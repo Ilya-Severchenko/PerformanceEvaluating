@@ -12,9 +12,6 @@ namespace PerformanceEvaluating.Business.Interfaces
         Task<DomainRequestResult> AddAsync(DomainRequestResult entity);
         Task<bool> DeleteAsync(int id);
         Task<bool> DeleteAllByUrlAsync(string url);
-        //Task<long> GetMaxValueByUrlAsync(string url);
-        //Task<long> GetMinValueByUrlAsync(string url);
-        //Task<IEnumerable<long>> GetAllAttemptsAsync(string url);
         Task<IEnumerable<DomainRequestResult>> GetAllByUrlAsync(string url);
     }
 }

@@ -28,25 +28,19 @@ namespace PerformanceEvaluating.Controllers
             await _performanceEvaluatingService.EvaluateAsync(url);
             
             return RedirectToAction("Index");
-        }
+        }        
 
-        public async Task<ActionResult> Delete(string url)
+        public async Task<ActionResult> ShowResults(int id)
         {
-            await _requestResultRepository.DeleteAllByUrlAsync(url);
+            var details = await _performanceEvaluatingService.ShowDetailsAsync(id);
+            ViewData["ParentId"] = id;
 
-            return RedirectToAction("Index");
-        }
-
-        public async Task<ActionResult> ShowDetails(string url)
-        {
-            var details = await _performanceEvaluatingService.ShowDetailsAsync(url);
-            
             return View(details);
         }
 
-        public async Task<ActionResult> GraphOutput()
+        public async Task<ActionResult> GraphOutput(int parentId)
         {
-            var stream = await _performanceEvaluatingService.GraphOutputAsync();
+            var stream = await _performanceEvaluatingService.GraphOutputAsync(parentId);
 
             return File(stream.GetBuffer(), @"image/png");
         }

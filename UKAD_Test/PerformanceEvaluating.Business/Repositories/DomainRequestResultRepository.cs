@@ -72,27 +72,6 @@ namespace PerformanceEvaluating.Business.Repositories
             throw new NullReferenceException($"Result with id={id} not found");
         }
 
-
-        //public async Task<long> GetMaxValueByUrlAsync(string url)
-        //{
-        //    var results = await _context.DomainRequestResults.Where(_ => _.Url == url).ToListAsync();
-        //    var attempt = results.Select(_ => _.Attempt).Max();
-        //    return attempt;
-        //}
-
-        //public async Task<long> GetMinValueByUrlAsync(string url)
-        //{
-        //    var results = await _context.DomainRequestResults.Where(_ => _.Url == url).ToListAsync();
-        //    var attempt = results.Select(_ => _.Attempt).Min();
-        //    return attempt;
-        //}
-        //public async Task<IEnumerable<long>> GetAllAttemptsAsync(string url)
-        //{
-        //    var results = await _context.DomainRequestResults.Where(_ => _.Url == url).ToListAsync();
-        //    var attempts = results.Select(_ => _.Attempt);
-        //    return attempts;
-        //}
-
         public async Task<IEnumerable<DomainRequestResult>> GetAllByUrlAsync(string url)
         {
             return await _context.DomainRequestResults.Where(_ => _.Url == url).ToListAsync();

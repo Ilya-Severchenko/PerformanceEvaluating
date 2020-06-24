@@ -1,15 +1,13 @@
 ﻿using PerformanceEvaluating.Data.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PerformanceEvaluating.Business.Interfaces
 {
-    public interface IChildRequesResult
+    public interface IChildRequestResultRepository
     {
         Task<ChildRequestResult> GetByIdAsync(int id);
+        Task<IEnumerable<ChildRequestResult>> GetAllByParentIdAsync(int parentId);
         Task<ChildRequestResult> GetByUrlAsync(string url);
         Task<IEnumerable<ChildRequestResult>> GetAllAsync();
         Task<ChildRequestResult> AddAsync(ChildRequestResult entity);

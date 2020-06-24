@@ -9,16 +9,21 @@ using System.Web.UI.DataVisualization.Charting;
 using System.Drawing;
 using System.IO;
 using System.Xml;
+using System;
+using NLog;
 
 namespace PerformanceEvaluating.Business.Services
 {
     public class PerformanceEvaluatingService : IPerformanceEvaluatingService
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly IDomainRequestResultRepository _domainRequestResultRepository;
+        private readonly IChildRequestResultRepository _childRequestResultRepository;
 
-        public PerformanceEvaluatingService(IDomainRequestResultRepository domainRequestResultRepository)
+        public PerformanceEvaluatingService(IDomainRequestResultRepository domainRequestResultRepository, IChildRequestResultRepository childRequesResultRepository)
         {
             _domainRequestResultRepository = domainRequestResultRepository;
+            _childRequestResultRepository = childRequesResultRepository;
         }
 
         public async Task EvaluateAsync(string url)
@@ -27,91 +32,112 @@ namespace PerformanceEvaluating.Business.Services
             {
                 url = $"http://{url}";
             }
+            string sitemapUrl;
             if (!url.EndsWith("sitemap.xml"))
             {
-                url += "/sitemap.xml";
+                sitemapUrl = $"{url}/sitemap.xml";
+            }
+            else
+            {
+                sitemapUrl = url;
             }
 
             var httpClient = new HttpClient();
             var stopwatch = new Stopwatch();
 
-            //stopwatch.Start();
-            var domenResponse = await httpClient.GetAsync(url);
-            //stopwatch.Stop();
-
-            await _domainRequestResultRepository.AddAsync(new DomainRequestResult
+            try
             {
-                Url = url,
-                //Attempt = stopwatch.ElapsedMilliseconds,
-                StatusCode = (int)domenResponse.StatusCode,
-            });
-
-            var childsResponse = await httpClient.GetStringAsync(url);
-            XmlDocument urlDoc = new XmlDocument();
-            urlDoc.LoadXml(childsResponse);
-            XmlNodeList xnList = urlDoc.GetElementsByTagName("url");
-            foreach (XmlNode node in xnList)
-            {
-                
-                stopwatch.Start();
-                var childResponse = await httpClient.GetAsync(node["loc"].InnerText);
-                stopwatch.Stop();
-                //await _requestChildResultRepository.AddAsync(new ChildRequestResult
-                //{
-                //    Url = node["loc"].InnerText,
-                //    Attempt = stopwatch.ElapsedMilliseconds,
-                //    StatusCode = (int)childResponse.StatusCode,
-                //});
-            }
-        }               
-
-        public async Task<List<DomainRequestResult>> ShowDetailsAsync(string url)
-        {
-            var results = await _domainRequestResultRepository.GetAllByUrlAsync(url);
-
-            var viewResults = new List<DomainRequestResult>();
-            foreach (var res in results)
-            {
-                var viewModel = new DomainRequestResult()
+                var domenResponse = await httpClient.GetAsync(url);
+                var domainRequestResult = await _domainRequestResultRepository.AddAsync(new DomainRequestResult
                 {
                     Url = url,
-                    //Attempt = res.Attempt,
+                    StatusCode = (int)domenResponse.StatusCode,
+                });
+
+            
+                var sitemap = await httpClient.GetStringAsync(sitemapUrl);
+
+                XmlDocument urldoc = new XmlDocument();
+                urldoc.LoadXml(sitemap);
+
+                var xnList = urldoc.LastChild.ChildNodes;
+
+                if (xnList.Count > 0)
+                {
+                    foreach (XmlNode node in xnList)
+                    {
+                        var childUrl = node["loc"].InnerText;
+                        if (!string.IsNullOrEmpty(childUrl))
+                        {
+                            stopwatch.Restart();
+                            stopwatch.Start();
+                            var childResponse = await httpClient.GetAsync(node["loc"].InnerText);
+                            stopwatch.Stop();
+                            await _childRequestResultRepository.AddAsync(new ChildRequestResult
+                            {
+                                Url = node["loc"].InnerText,
+                                Attempt = stopwatch.ElapsedMilliseconds,
+                                DomainRequestResultId = domainRequestResult.Id,
+                                StatusCode = (int)childResponse.StatusCode,
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message);                
+            }
+        }
+
+        public async Task<List<RequestResultViewModel>> ShowDetailsAsync(int id)
+        {
+            var results = await _childRequestResultRepository.GetAllByParentIdAsync(id);
+
+            var sortedResults = new List<RequestResultViewModel>();
+            foreach (var res in results)
+            {
+                var viewModel = new RequestResultViewModel()
+                {
+                    Url = res.Url,
+                    Min = await _childRequestResultRepository.GetMinValueByUrlAsync(res.Url),
+                    Max = await _childRequestResultRepository.GetMaxValueByUrlAsync(res.Url),
                     StatusCode = res.StatusCode
                 };
-                viewResults.Add(viewModel);
+                sortedResults.Add(viewModel);
             }
-            return viewResults;
+            return sortedResults.OrderBy(_ => _.Min).ToList();
         }
 
         public async Task<List<RequestResultViewModel>> SortedMainTableAsync()
         {
             var results = await _domainRequestResultRepository.GetAllAsync();
 
-            var groups = results.Select(_ => _.Url).Distinct();
 
-            var sortedResults = new List<RequestResultViewModel>();
+            var groups = results.GroupBy(x => x.Url).Select(x => x.First());
+
+            var viewResults = new List<RequestResultViewModel>();
 
             foreach (var res in groups)
             {
                 var viewModel = new RequestResultViewModel()
                 {
-                    Url = res,
-                    //Min = await _domainRequestResultRepository.GetMinValueByUrlAsync(res),
-                    //Max = await _domainRequestResultRepository.GetMaxValueByUrlAsync(res)
+                    Id = res.Id,
+                    Url = res.Url
                 };
-                sortedResults.Add(viewModel);
+                viewResults.Add(viewModel);
             }
 
-            return sortedResults.OrderBy(_ => _.Min).ToList();
+            return viewResults;
         }
 
-        public async Task<MemoryStream> GraphOutputAsync()
+        public async Task<MemoryStream> GraphOutputAsync(int parentId)
         {
-            var sortedResults = await SortedMainTableAsync();
-           
+            var sortedResults = await ShowDetailsAsync(parentId);
+
             Chart chart = new Chart();
-            chart.Width = 1000;
-            chart.Height = 250;
+            chart.Width = 6000;
+            chart.Height = 1500;
 
             var area = new ChartArea();
 
@@ -120,11 +146,11 @@ namespace PerformanceEvaluating.Business.Services
             area.AxisX.IsLabelAutoFit = true;
             area.AxisY.IsLabelAutoFit = true;
             area.AxisX.Title = "URL address";
-            area.AxisX.TitleFont = new Font("Verdana,Arial,Helvetica,sans-serif", 10F, FontStyle.Bold);
+            area.AxisX.TitleFont = new Font("Verdana,Arial,Helvetica,sans-serif", 20F, FontStyle.Bold);
             area.AxisY.Title = "Response time, ms";
-            area.AxisY.TitleFont = new Font("Verdana,Arial,Helvetica,sans-serif", 10F, FontStyle.Bold);
-            area.AxisX.LabelStyle.Font = new Font("Verdana,Arial,Helvetica,sans-serif", 8F, FontStyle.Regular);
-            area.AxisY.LabelStyle.Font = new Font("Verdana,Arial,Helvetica,sans-serif", 8F, FontStyle.Regular);
+            area.AxisY.TitleFont = new Font("Verdana,Arial,Helvetica,sans-serif", 20F, FontStyle.Bold);
+            area.AxisX.LabelStyle.Font = new Font("Verdana,Arial,Helvetica,sans-serif", 16F, FontStyle.Regular);
+            area.AxisY.LabelStyle.Font = new Font("Verdana,Arial,Helvetica,sans-serif", 16F, FontStyle.Regular);
             area.AxisY.LineColor = Color.FromArgb(64, 64, 64, 64);
             area.AxisX.LineColor = Color.FromArgb(64, 64, 64, 64);
             area.AxisY.MajorGrid.LineColor = Color.FromArgb(64, 64, 64, 64);
@@ -141,7 +167,7 @@ namespace PerformanceEvaluating.Business.Services
 
             var legends = new Legend();
             legends.IsDockedInsideChartArea = true;
-            legends.Font = new Font("Verdana,Arial,Helvetica,sans-serif", 10F, FontStyle.Bold);
+            legends.Font = new Font("Verdana,Arial,Helvetica,sans-serif", 20F, FontStyle.Bold);
 
             chart.Legends.Add(legends);
 
@@ -171,7 +197,7 @@ namespace PerformanceEvaluating.Business.Services
             chart.Series.Add(seriesMax);
 
             var returnStream = new MemoryStream();
-            chart.ImageType = ChartImageType.Png;
+            chart.ImageType = ChartImageType.Jpeg;
             chart.SaveImage(returnStream);
             returnStream.Position = 0;
 

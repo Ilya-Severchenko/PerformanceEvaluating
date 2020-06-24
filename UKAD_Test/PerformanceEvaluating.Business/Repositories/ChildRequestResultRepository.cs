@@ -5,12 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PerformanceEvaluating.Business.Repositories
 {
-    public class ChildRequestResultRepository : IChildRequesResult
+    public class ChildRequestResultRepository : IChildRequestResultRepository
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -24,6 +23,11 @@ namespace PerformanceEvaluating.Business.Repositories
         public async Task<ChildRequestResult> GetByIdAsync(int id)
         {
             return await _context.ChildRequestResults.FirstOrDefaultAsync(_ => _.Id == id);
+        }
+        public async Task<IEnumerable<ChildRequestResult>> GetAllByParentIdAsync(int parentId)
+        {
+            return await _context.ChildRequestResults.Include(_=>_.DomainRequestResult)
+                        .Where(_ => _.DomainRequestResult.Id == parentId).ToListAsync();
         }
 
         public async Task<ChildRequestResult> AddAsync(ChildRequestResult entity)

@@ -1,21 +1,26 @@
-﻿@model IEnumerable<PerformanceEvaluating.Data.Models.DomainRequestResult>
+﻿@model IEnumerable<PerformanceEvaluating.Data.Models.RequestResultViewModel>
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+    <div>
+        <img src="@Url.Action("GraphOutput", new { parentId =  ViewData["ParentId"] })" class="img-fluid" />
+    </div>
 
 <div class="table-responsive">
     <table class="table table-striped table-bordered">
         <tr>
             <th>Url</th>
-            @*<th>Response time</th>*@
+            <th>MinValue</th>
+            <th>MaxValue</th>
             <th hidden>StatusCode</th>
         </tr>
         @foreach (var requestResult in Model)
         {
             <tr>
                 <td>@requestResult.Url</td>
-                @*<td>@requestResult.Attempt</td>*@
+                <td>@requestResult.Min</td>
+                <td>@requestResult.Max</td>
                 <td hidden>@requestResult.StatusCode</td>
             </tr>
         }

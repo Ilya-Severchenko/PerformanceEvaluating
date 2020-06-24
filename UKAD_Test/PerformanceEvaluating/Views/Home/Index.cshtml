@@ -17,27 +17,19 @@
     }
 </div>
 
-<div>
-    <img src="@Url.Action("GraphOutput")" class="img-fluid" />
-</div>
-
 <div class="table-responsive">
     <table id="tableResults" class="table table-striped table-bordered">
         <tr>
             <th>Url</th>
-            <th>MinValue</th>
-            <th>MaxValue</th>
+            <th>Results</th>
             <th hidden>StatusCode</th>
         </tr>
         @foreach (var requestResult in Model)
         {
             <tr>
                 <td>@requestResult.Url</td>
-                <td>@requestResult.Min</td>
-                <td>@requestResult.Max</td>
+                <td>@Html.ActionLink("Results", "ShowResults", new { id = requestResult.Id }, null)</td>
                 <td hidden>@requestResult.StatusCode</td>
-                <td>@Html.ActionLink("Show more", "ShowDetails", new { url = requestResult.Url }, null)</td>
-                <td>@Html.ActionLink("Delete", "Delete", new { url = requestResult.Url }, null)</td>
             </tr>
         }
     </table>

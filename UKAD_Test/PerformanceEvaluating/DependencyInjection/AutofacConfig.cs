@@ -17,6 +17,8 @@ namespace PerformanceEvaluating.DependencyInjection
 
             builder.RegisterType<DomainRequestResultRepository>().As<IDomainRequestResultRepository>()
                    .WithParameter("context", new ApplicationDbContext());
+            builder.RegisterType<ChildRequestResultRepository>().As<IChildRequestResultRepository>()
+                   .WithParameter("context", new ApplicationDbContext());
             builder.RegisterType<PerformanceEvaluatingService>().As<IPerformanceEvaluatingService>();
 
             var container = builder.Build();

@@ -60,6 +60,7 @@
     <Reference Include="System.Web.DataVisualization" />
     <Reference Include="System.Web.DataVisualization.Design" />
     <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -68,7 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\IChildRequesResult.cs" />
+    <Compile Include="Interfaces\IChildRequestResultRepository.cs" />
     <Compile Include="Interfaces\IDomainRequestResultRepository.cs" />
     <Compile Include="Interfaces\IPerformanceEvaluatingService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
